@@ -1,0 +1,28 @@
+[
+  {
+    "EndpointUrl": "opc.tcp://opcplc:50000",
+    "OpcNodes": [
+      {
+        "Id": "nsu=http://opcfoundation.org/UA/;i=2258"
+      },
+      {
+        "Id": "nsu=http://microsoft.com/Opc/OpcPlc/;s=SpikeData"
+      },
+      {
+        "Id": "nsu=http://microsoft.com/Opc/OpcPlc/;s=DipData"
+      },
+      {
+        "Id": "nsu=http://microsoft.com/Opc/OpcPlc/;s=AlternatingBoolean"
+      },
+      {
+        "Id": "nsu=http://microsoft.com/Opc/OpcPlc/;s=RandomUnsignedInt32"
+      },
+      {
+        "Id": "nsu=http://microsoft.com/Opc/OpcPlc/;s=PositiveTrendData"
+      },
+      {
+        "Id": "nsu=http://microsoft.com/Opc/OpcPlc/;s=NegativeTrendData"
+      }
+    ]
+  }
+]

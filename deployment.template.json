@@ -1,0 +1,185 @@
+{
+  "$schema-template": "1.0.0",
+  "modulesContent": {
+    "$edgeAgent": {
+      "properties.desired": {
+        "schemaVersion": "1.0",
+        "runtime": {
+          "type": "docker",
+          "settings": {
+            "minDockerVersion": "v1.25",
+            "loggingOptions": "",
+            "registryCredentials": {}
+          }
+        },
+        "systemModules": {
+          "edgeAgent": {
+            "type": "docker",
+            "settings": {
+              "image": "mcr.microsoft.com/azureiotedge-agent:1.0",
+              "createOptions": {}
+            }
+          },
+          "edgeHub": {
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "mcr.microsoft.com/azureiotedge-hub:1.0",
+              "createOptions": {
+                "HostConfig": {
+                  "PortBindings": {
+                    "5671/tcp": [
+                      {
+                        "HostPort": "5671"
+                      }
+                    ],
+                    "8883/tcp": [
+                      {
+                        "HostPort": "8883"
+                      }
+                    ],
+                    "443/tcp": [
+                      {
+                        "HostPort": "443"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "modules": {
+          "opcplc": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "mcr.microsoft.com/iotedge/opc-plc:latest",
+              "createOptions": {
+                "Hostname" : "opcplc",
+                "Cmd" : [ "--aa" ],
+                "HostConfig": {
+                  "ExposedPorts" : {
+                    "50000/tcp": {}
+                  },
+                  "PortBindings": {
+                    "50000/tcp": [
+                      {
+                        "HostPort": "50000"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "publisher": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "mcr.microsoft.com/iotedge/opc-publisher:2.2.0",
+              "createOptions": {
+                "Hostname" : "publisher",
+                "Cmd" : [ 
+                  "publisher",
+                  "--at",
+                  "directory",
+                  "--ap",
+                  "/d/config/own",
+                  "--pf",
+                  "/d/appdata/publishednodes.json",
+                  "--tc",
+                  "/d/appdata/telemetryconfig.json",
+                  "--di=60",
+                  "--tp",
+                  "/d/config/trusted",
+                  "--rp",
+                  "/d/config/rejected",
+                  "--ip",
+                  "/d/config/issuer",
+                  "--si=1",
+                  "--to",
+                  "--aa"
+                 ],
+                "HostConfig": {
+                  "ExposedPorts" : {
+                    "62222/tcp": {}
+                  },
+                  "PortBindings": {
+                    "62222/tcp": [
+                      {
+                        "HostPort": "62222"
+                      }
+                    ]
+                  },
+                  "Binds": [
+                    "C:/Dev/iotedge/crate/localstorageCrateDBEdgeSolution:/d"
+                  ]
+                }
+              }
+            }
+          },
+          "cratedb": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "crate:3.2.4",
+              "createOptions": {
+                "Hostname" : "cratedb",
+                "HostConfig": {
+                  "ExposedPorts" : {
+                    "4200/tcp": {}
+                  },
+                  "PortBindings": {
+                    "4200/tcp": [
+                      {
+                        "HostPort": "4200"
+                      }
+                    ]
+                  },
+                  "Binds" : [
+                    "C:/Dev/docker/mounts/crate/data:/data"
+                  ]
+                }
+              }
+            }
+          },
+          "cratedbsaver": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${MODULES.cratedbsaver}",
+              "createOptions": {
+                "Env" : [
+                  "CrateDBURL:http://cratedb:4200/_sql",
+                  "CrateDBCredentials:edgeingest:p@ssword"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "$edgeHub": {
+      "properties.desired": {
+        "schemaVersion": "1.0",
+        "routes": {
+          "publishertoiothub": "FROM /messages/modules/publisher INTO $upstream",
+          "publishertocratedbsaver": "FROM /messages/modules/publisher INTO BrokeredEndpoint(\"/modules/cratedbsaver/inputs/input1\")"
+        },
+        "storeAndForwardConfiguration": {
+          "timeToLiveSecs": 7200
+        }
+      }
+    }
+  }
+}

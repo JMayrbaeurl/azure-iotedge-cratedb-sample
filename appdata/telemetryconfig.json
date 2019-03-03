@@ -1,0 +1,44 @@
+{
+    "Defaults": {
+        "EndpointUrl": {
+            "Publish": false,
+            "Pattern": "(.*)",
+          "Name": "EndpointUrl"
+        },
+        "NodeId": {
+            "Publish": true,
+            "Name": "NodeId"
+        },
+        "MonitoredItem": {
+            "Flat": true,
+
+            "ApplicationUri": {
+                "Publish": true,
+                "Name": "ApplicationUri"
+            },
+            "DisplayName": {
+                "Publish": true,
+                "Name": "DisplayName"
+            }
+        },
+        "Value": {
+            "Flat": false,
+            "Value": {
+                "Publish": true,
+                "Name": "Value"
+            },
+            "SourceTimestamp": {
+                "Publish": true,
+                "Name": "SourceTimestamp"
+            },
+            "StatusCode": {
+                "Publish": false,
+                "Name": "StatusCode"
+            },
+            "Status": {
+                "Publish": false,
+                "Name": "Status"
+            }
+        }
+    }
+}

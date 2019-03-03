@@ -1,0 +1,1 @@
+INSERT INTO doc.raw (payload) values ({ col = 'second'})
