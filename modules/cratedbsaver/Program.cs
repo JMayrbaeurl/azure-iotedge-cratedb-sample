@@ -11,12 +11,13 @@ namespace cratedbsaver
     using System.Net.Http;
     using Microsoft.Azure.Devices.Client;
     using Microsoft.Azure.Devices.Client.Transport.Mqtt;
+    using Npgsql;
+    using Npgsql.CrateDb;
+    using System.Data.Common;
 
     class Program
     {
         static int counter;
-
-        private static HttpClient client = new HttpClient();
 
         static void Main(string[] args)
         {
@@ -45,6 +46,8 @@ namespace cratedbsaver
         /// </summary>
         static async Task Init()
         {
+            NpgsqlDatabaseInfo.RegisterFactory(new CrateDbDatabaseInfoFactory());
+
             MqttTransportSettings mqttSetting = new MqttTransportSettings(TransportType.Mqtt_Tcp_Only);
             ITransportSettings[] settings = { mqttSetting };
 
@@ -78,36 +81,52 @@ namespace cratedbsaver
 
             if (!string.IsNullOrEmpty(messageString))
             {
-                // Read Crate DB credentials from App settings and put it into the default headers for 
-                // Basic authentication
-                string crateDBCredentials = System.Environment.GetEnvironmentVariable("CrateDBCredentials");
-                var byteArray = Encoding.ASCII.GetBytes(crateDBCredentials);
-                client.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+               return await WriteToCreateDBWithNpgSQL(message, messageString, userContext);
+            } else
+                return MessageResponse.Completed;
+        }
 
-                // Use the enqueued timestamp from IoT Hub as event timestamp
-                string ts = message.Properties["iothub-enqueuedtime"];
+        static async Task<MessageResponse> WriteToCreateDBWithNpgSQL(Message message, string messageString, object userContext) {
 
-                // The device ID is taken from the message properties
-                string deviceID = message.Properties["iothub-connection-device-id"].ToString();
+            string crateDBConnectionString = System.Environment.GetEnvironmentVariable("CrateDBConnString");
 
-                // Build the HTTP body message for a Crate DB insert
-                FormattableString fmtString = $"{{ \"stmt\" : \"insert into doc.raw ( iothub_enqueuedtime,iothub_connection_device_id,payload ) values ( TO_TIMESTAMP('{ts}'), '{deviceID}', {messageString} )\"}}";
-                string jsonInString = fmtString.ToString(System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+            using (var conn = new NpgsqlConnection(crateDBConnectionString))
+            {
+                conn.Open();
 
-                // Call the REST interface of the Crate DB
-                string crateDBURL = System.Environment.GetEnvironmentVariable("CrateDBURL");
-                HttpResponseMessage response = await client.PostAsync(crateDBURL,
-                    new StringContent(jsonInString, Encoding.UTF8, "application/json"));
-
-                if (!response.IsSuccessStatusCode)
+                // Insert some data
+                using (var cmd = new NpgsqlCommand())
                 {
-                    Console.WriteLine($"Error {response.StatusCode} on inserting in Crate DB. Statement: {jsonInString}");
-                } else
-                {
-                    Console.WriteLine("Successfully written message to Crate DB");
+                    // Use the enqueued timestamp from IoT Hub as event timestamp
+                    string ts; message.Properties.TryGetValue("iothub-enqueuedtime", out ts);
+
+                    // The device ID is taken from the message properties
+                    string deviceID = message.Properties.ContainsKey("iothub-connection-device-id") ? message.Properties["iothub-connection-device-id"].ToString() : "Unknown";
+
+                    cmd.Connection = conn;
+                    //cmd.CommandText = "INSERT INTO doc.raw (iothub_enqueuedtime,iothub_connection_device_id,payload) VALUES (@iothubtime,@deviceid,@payload)";
+                    cmd.CommandText = "INSERT INTO doc.raw (payload) VALUES (@payload)";
+                    cmd.Parameters.Clear();
+                    //cmd.Parameters.AddWithValue("iothubtime", ts);
+                    //cmd.Parameters.AddWithValue("deviceid", deviceID);
+                    string payloadString = messageString.StartsWith('{') ? messageString : ("{\"data\" : " + messageString + "}");
+                    cmd.Parameters.AddWithValue("payload", payloadString);
+
+                    try {
+                        bool wasSuccessfull = await cmd.ExecuteNonQueryAsync() == 1;
+                        if (!wasSuccessfull)
+                        {
+                            Console.WriteLine($"Error writing message to Crate DB: {payloadString}");
+                        } else
+                        {
+                            Console.WriteLine("Successfully written message to Crate DB");
+                        }
+                    } catch (Exception dbEx) {
+                        Console.WriteLine("Exception writing message to Crate DB. " + dbEx.Message);
+                    }
                 }
             }
+
             return MessageResponse.Completed;
         }
     }

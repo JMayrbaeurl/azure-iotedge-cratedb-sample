@@ -7,3 +7,7 @@ CREATE TABLE IF NOT EXISTS "doc"."raw" (
 )
 CLUSTERED INTO 1 SHARDS
 PARTITIONED BY ("g_ts_week")
+
+CREATE USER edgeingest WITH (password = 'p@ssword')
+
+GRANT ALL ON SCHEMA doc to edgeingest
