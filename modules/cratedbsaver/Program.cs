@@ -98,17 +98,16 @@ namespace cratedbsaver
                 using (var cmd = new NpgsqlCommand())
                 {
                     // Use the enqueued timestamp from IoT Hub as event timestamp
-                    string ts; message.Properties.TryGetValue("iothub-enqueuedtime", out ts);
+                    DateTime ts = message.EnqueuedTimeUtc;
 
-                    // The device ID is taken from the message properties
-                    string deviceID = message.Properties.ContainsKey("iothub-connection-device-id") ? message.Properties["iothub-connection-device-id"].ToString() : "Unknown";
+                    // The device ID is taken from message
+                    string deviceID = message.ConnectionDeviceId != null ? message.ConnectionDeviceId : "Unknown";
 
                     cmd.Connection = conn;
-                    //cmd.CommandText = "INSERT INTO doc.raw (iothub_enqueuedtime,iothub_connection_device_id,payload) VALUES (@iothubtime,@deviceid,@payload)";
-                    cmd.CommandText = "INSERT INTO doc.raw (payload) VALUES (@payload)";
+                    cmd.CommandText = "INSERT INTO doc.raw (iothub_enqueuedtime,iothub_connection_device_id,payload) VALUES (@iothubtime,@deviceid,@payload)";
                     cmd.Parameters.Clear();
-                    //cmd.Parameters.AddWithValue("iothubtime", ts);
-                    //cmd.Parameters.AddWithValue("deviceid", deviceID);
+                    cmd.Parameters.AddWithValue("iothubtime", ts);
+                    cmd.Parameters.AddWithValue("deviceid", deviceID);
                     string payloadString = messageString.StartsWith('{') ? messageString : ("{\"data\" : " + messageString + "}");
                     cmd.Parameters.AddWithValue("payload", payloadString);
 

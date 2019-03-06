@@ -1,0 +1,67 @@
+{
+    "data": [
+        {
+            "NodeId": "nsu=http://opcfoundation.org/UA/;i=2258",
+            "DisplayName": "i=2258",
+            "Value": {
+                "Value": "2019-03-03T17:19:58.2431259Z",
+                "SourceTimestamp": "2019-03-03T17:19:58.2431259Z"
+            },
+            "ApplicationUri": "urn:OpcPlc:opcplc"
+        },
+        {
+            "NodeId": "nsu=http://microsoft.com/Opc/OpcPlc/;s=SpikeData",
+            "DisplayName": "ns=2;s=SpikeData",
+            "Value": {
+                "Value": -58.77852522924726,
+                "SourceTimestamp": "2019-03-03T17:19:58.2716800Z"
+            },
+            "ApplicationUri": "urn:OpcPlc:opcplc"
+        },
+        {
+            "NodeId": "nsu=http://microsoft.com/Opc/OpcPlc/;s=DipData",
+            "DisplayName": "ns=2;s=DipData",
+            "Value": {
+                "Value": -58.77852522924726,
+                "SourceTimestamp": "2019-03-03T17:19:58.2716732Z"
+            },
+            "ApplicationUri": "urn:OpcPlc:opcplc"
+        },
+        {
+            "NodeId": "nsu=http://microsoft.com/Opc/OpcPlc/;s=AlternatingBoolean",
+            "DisplayName": "ns=2;s=AlternatingBoolean",
+            "Value": {
+                "Value": true,
+                "SourceTimestamp": "2019-03-03T17:19:58.1692155Z"
+            },
+            "ApplicationUri": "urn:OpcPlc:opcplc"
+        },
+        {
+            "NodeId": "nsu=http://microsoft.com/Opc/OpcPlc/;s=RandomUnsignedInt32",
+            "DisplayName": "ns=2;s=RandomUnsignedInt32",
+            "Value": {
+                "Value": 470688334,
+                "SourceTimestamp": "2019-03-03T17:19:58.2717461Z"
+            },
+            "ApplicationUri": "urn:OpcPlc:opcplc"
+        },
+        {
+            "NodeId": "nsu=http://microsoft.com/Opc/OpcPlc/;s=PositiveTrendData",
+            "DisplayName": "ns=2;s=PositiveTrendData",
+            "Value": {
+                "Value": 100,
+                "SourceTimestamp": "2019-03-03T17:19:58.1691579Z"
+            },
+            "ApplicationUri": "urn:OpcPlc:opcplc"
+        },
+        {
+            "NodeId": "nsu=http://microsoft.com/Opc/OpcPlc/;s=NegativeTrendData",
+            "DisplayName": "ns=2;s=NegativeTrendData",
+            "Value": {
+                "Value": 100,
+                "SourceTimestamp": "2019-03-03T17:19:58.1691159Z"
+            },
+            "ApplicationUri": "urn:OpcPlc:opcplc"
+        }
+    ]
+}

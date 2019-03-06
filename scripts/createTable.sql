@@ -8,6 +8,20 @@ CREATE TABLE IF NOT EXISTS "doc"."raw" (
 CLUSTERED INTO 1 SHARDS
 PARTITIONED BY ("g_ts_week")
 
+CREATE TABLE IF NOT EXISTS "doc"."opcdata" (
+   "g_ts_week" TIMESTAMP,
+   "insert_ts" TIMESTAMP,
+   "iothub_enqueuedtime" TIMESTAMP,
+   "iothub_connection_device_id" string,
+   "nodeid" string,
+   "displayname" string,
+   "source_ts" TIMESTAMP,
+   "applicationur" string,
+   "value" string
+)
+CLUSTERED INTO 1 SHARDS
+PARTITIONED BY ("g_ts_week")
+
 CREATE USER edgeingest WITH (password = 'p@ssword')
 
 GRANT ALL ON SCHEMA doc to edgeingest
