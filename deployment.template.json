@@ -124,7 +124,7 @@
                     ]
                   },
                   "Binds": [
-                    "/mnt/data/cratedbsaver:/d"
+                    "C:/Dev/iotedge/crate/localstorageCrateDBEdgeSolution:/d"
                   ]
                 }
               }
@@ -157,7 +157,7 @@
                     ]
                   },
                   "Binds" : [
-                    "/mnt/data/crate:/data"
+                    "C:/Dev/docker/mounts/crate/data:/data"
                   ]
                 }
               }
@@ -190,6 +190,33 @@
                   "ENRICHMENT_CONNECTION=http://cratedb:4200",
                   "ENRICHMENT_TABLE=opcdata"
                 ]
+              }
+            }
+          },
+          "grafana" : {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "grafana/grafana:5.1.0",
+              "createOptions": {
+                "Hostname" : "grafana",
+                "HostConfig": {
+                  "ExposedPorts" : {
+                    "3000/tcp": {}
+                  },
+                  "PortBindings": {
+                    "3000/tcp": [
+                      {
+                        "HostPort": "3000"
+                      }
+                    ]
+                  },
+                  "Binds" : [
+                    "C:/Dev/docker/mounts/grafana/data:/data"
+                  ]
+                }
               }
             }
           }
