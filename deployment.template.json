@@ -9,7 +9,13 @@
           "settings": {
             "minDockerVersion": "v1.25",
             "loggingOptions": "",
-            "registryCredentials": {}
+            "registryCredentials": {
+              "cr8playground": {
+                "username": "cr8playground",
+                "password": "OumIM9hazsM09O0cdFgu0l/WzrtRhW9l",
+                "address": "playground.registry.cr8.net"
+              }
+            }
           }
         },
         "systemModules": {
@@ -85,7 +91,7 @@
               "image": "mcr.microsoft.com/iotedge/opc-publisher:2.2.0",
               "createOptions": {
                 "Hostname" : "publisher",
-                "Cmd" : [ 
+                "Cmd" : [
                   "publisher",
                   "--at",
                   "directory",
@@ -118,7 +124,7 @@
                     ]
                   },
                   "Binds": [
-                    "C:/Dev/iotedge/crate/localstorageCrateDBEdgeSolution:/d"
+                    "/mnt/data/cratedbsaver:/d"
                   ]
                 }
               }
@@ -151,7 +157,7 @@
                     ]
                   },
                   "Binds" : [
-                    "C:/Dev/docker/mounts/crate/data:/data"
+                    "/mnt/data/crate:/data"
                   ]
                 }
               }
@@ -167,6 +173,22 @@
               "createOptions": {
                 "Env" : [
                   "CrateDBConnString=Host=cratedb;Username=edgeingest;Password=p@ssword"
+                ]
+              }
+            }
+          },
+          "enrichment": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "playground.registry.cr8.net/microsoft/enrichment:1.0.0",
+              "createOptions": {
+                "Env" : [
+                  "RAW_CONNECTION=http://cratedb:4200",
+                  "ENRICHMENT_CONNECTION=http://cratedb:4200",
+                  "ENRICHMENT_TABLE=opcdata"
                 ]
               }
             }
