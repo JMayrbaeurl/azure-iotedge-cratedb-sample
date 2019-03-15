@@ -1,0 +1,41 @@
+#
+# Use this Docker compose setup to configure the database and grafana on the edge device 
+# before deploying the complete IoT Edge setup
+#
+# Attention: Please specify your own volumes for both services
+#
+
+version: '3.5'
+
+services: 
+  cratedb:
+    image: crate:3.2.4
+    container_name: cratedb
+    networks: 
+      - crate-net
+    ports: 
+      - "4200:4200"
+      - "5432:5432"
+    volumes: 
+      - C:\Dev\docker\mounts\crate\data:/data
+    restart: always
+    environment: 
+      CRATE_HEAP_SIZE: 1g
+
+  grafana:
+    image: grafana/grafana:6.0.1
+    container_name: grafana
+    depends_on: 
+      - cratedb
+    networks: 
+      - crate-net
+    ports: 
+      - "3000:3000"
+    volumes: 
+      - C:\Dev\docker\mounts\grafana\data:/var/lib/grafana
+    restart: always
+
+networks: 
+  crate-net:
+    name: crate-net
+    driver: bridge
