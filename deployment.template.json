@@ -11,9 +11,9 @@
             "loggingOptions": "",
             "registryCredentials": {
               "cr8playground": {
-                "username": "cr8playground",
-                "password": "OumIM9hazsM09O0cdFgu0l/WzrtRhW9l",
-                "address": "playground.registry.cr8.net"
+                "username": "$cr8playground_username",
+                "password": "$cr8playground_password",
+                "address": "$cr8playground_address"
               }
             }
           }
