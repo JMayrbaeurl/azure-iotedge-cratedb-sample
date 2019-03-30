@@ -9,7 +9,13 @@
           "settings": {
             "minDockerVersion": "v1.25",
             "loggingOptions": "",
-            "registryCredentials": {}
+            "registryCredentials": {
+              "cr8playground": {
+                "username": "$cr8playground_username",
+                "password": "$cr8playground_password",
+                "address": "$cr8playground_address"
+              }
+            }
           }
         },
         "systemModules": {
@@ -135,12 +141,18 @@
                 "Hostname" : "cratedb",
                 "HostConfig": {
                   "ExposedPorts" : {
-                    "4200/tcp": {}
+                    "4200/tcp": {},
+                    "5432/tcp": {}
                   },
                   "PortBindings": {
                     "4200/tcp": [
                       {
                         "HostPort": "4200"
+                      }
+                    ],
+                    "5432/tcp": [
+                      {
+                        "HostPort": "5432"
                       }
                     ]
                   },
@@ -157,12 +169,54 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "${MODULES.cratedbsaver}",
+              "image": "${MODULES.cratedbsaver.debug}",
               "createOptions": {
                 "Env" : [
-                  "CrateDBURL:http://cratedb:4200/_sql",
-                  "CrateDBCredentials:edgeingest:p@ssword"
+                  "CrateDBConnString=Host=cratedb;Username=edgeingest;Password=p@ssword"
                 ]
+              }
+            }
+          },
+          "enrichment": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "playground.registry.cr8.net/microsoft/enrichment:1.0.0",
+              "createOptions": {
+                "Env" : [
+                  "RAW_CONNECTION=http://cratedb:4200",
+                  "ENRICHMENT_CONNECTION=http://cratedb:4200",
+                  "ENRICHMENT_TABLE=opcdata"
+                ]
+              }
+            }
+          },
+          "grafana" : {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "grafana/grafana:5.1.0",
+              "createOptions": {
+                "Hostname" : "grafana",
+                "HostConfig": {
+                  "ExposedPorts" : {
+                    "3000/tcp": {}
+                  },
+                  "PortBindings": {
+                    "3000/tcp": [
+                      {
+                        "HostPort": "3000"
+                      }
+                    ]
+                  },
+                  "Binds" : [
+                    "C:/Dev/docker/mounts/grafana/data:/data"
+                  ]
+                }
               }
             }
           }
